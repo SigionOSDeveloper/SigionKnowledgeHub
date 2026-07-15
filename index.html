@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Sigion Handbook</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 30px;
+      }
+
+      textarea {
+        width: 100%;
+        height: 400px;
+      }
+
+      #pages {
+        float: left;
+        width: 200px;
+      }
+
+      #main {
+        margin-left: 220px;
+      }
+
+      a {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>SigionOS Knowlegde hub</h1>
+    <div id="pages"></div>
+    <div id="main"></div>
+    <script>
+      let wiki = JSON.parse(localStorage.getItem("wiki")) || {
+        "Home": `
+# Sigion Developer's Lil' Handbook
+Find sources that SigionOS Operating system used.
+
+`,
+        "All C datatypes (important for me)": `
+  
+				<sub>(this was written in AI, for more modern information.</sub>
+
+  # Complete Reference of C Data Types
+
+  ## 1. Basic / Primitive Types
+
+  ### Integer Types
+
+  | Type | Size (Bytes)* | Format Specifier | Range / Description |
+  | :--- | :--- | :--- | :--- |
+  | \`char\` | 1 | \`%c\` or \`%d\` | Single character or small integer (-128 to 127) |
+  | \`signed char\` | 1 | \`%c\` or \`%d\` | Explicitly signed 8-bit integer (-128 to 127) |
+  | \`unsigned char\` | 1 | \`%c\` or \`%u\` | Unsigned 8-bit integer (0 to 255) |
+  | \`short\` | 2 | \`%hd\` | Short signed integer (-32,768 to 32,767) |
+  | \`unsigned short\` | 2 | \`%hu\` | Unsigned short integer (0 to 65,535) |
+  | \`int\` | 4 | \`%d\` or \`%i\` | Standard signed integer (-2,147,483,648 to 2,147,483,647) |
+  | \`unsigned int\` | 4 | \`%u\` | Standard unsigned integer (0 to 4,294,967,295) |
+  | \`long\` | 8 | \`%ld\` | Large signed integer |
+  | \`unsigned long\` | 8 | \`%lu\` | Large unsigned integer |
+  | \`long long\` | 8 | \`%lld\` | Extra large signed integer (since C99) |
+  | \`unsigned long long\`| 8 | \`%llu\` | Extra large unsigned integer (since C99) |
+
+  *Note: Sizes reflect typical modern 64-bit systems.*
+
+  ### Real Floating-Point Types
+
+  | Type | Size (Bytes) | Format Specifier | Precision / Description |
+  | :--- | :--- | :--- | :--- |
+  | \`float\` | 4 | \`%f\` or \`%e\` | Single-precision (approx. 6-7 decimal digits) |
+  | \`double\` | 8 | \`%lf\` or \`%g\` | Double-precision (approx. 15-17 decimal digits) |
+  | \`long double\` | 12 to 16 | \`%Lf\` | Extended-precision (platform dependent) |
+
+  ---
+
+  ## 2. Derived Types
+
+  * **Arrays (\`type name[size]\`)**: A fixed-size, sequential collection of elements of the same type.
+  * **Pointers (\`type *name\`)**: A variable that holds the memory address of another variable (\`%p\`).
+  * **Structures (\`struct\`)**: A user-defined aggregate type grouping variables under one name.
+  * **Unions (\`union\`)**: A user-defined type where all member variables share the same memory space.
+  * **Functions (\`type name(args)\`)**: A block of executable code with a defined return type.
+
+  ---
+
+  ## 3. Special Types
+
+  ### Void Type
+  * **\`void\`**: Represents the absence of a value. Used for empty function returns or generic pointers (\`void *\`).
+
+  ### Boolean (\`
+				<stdbool.h>\` - Since C99)
+  * **\`_Bool\`** (or macro **\`bool\`**): Stores \`true\` (1) or \`false\` (0). Uses \`%d\` for printing.
+
+  ---
+
+  ## 4. Exact-Width Integers (\`
+					<stdint.h>\` - Since C99)
+  Guarantees identical data sizes across all systems and compiler architectures:
+
+  | Signed Type | Unsigned Type | Exact Size |
+  | :--- | :--- | :--- |
+  | \`int8_t\` | \`uint8_t\` | Exactly 8 bits (1 byte) |
+  | \`int16_t\` | \`uint16_t\` | Exactly 16 bits (2 bytes) |
+  | \`int32_t\` | \`uint32_t\` | Exactly 32 bits (4 bytes) |
+  | \`int64_t\` | \`uint64_t\` | Exactly 64 bits (8 bytes) |
+  | \`intptr_t\` | \`uintptr_t\` | Large enough to safely hold a pointer address |
+  | \`intmax_t\` | \`uintmax_t\` | The maximum-width integer available on the platform |
+
+  ---
+
+  ## 5. Type Qualifiers (Modifiers)
+  Prefixes added to data types to change their runtime behavior:
+  * **\`const\`**: Makes the variable read-only (value cannot be changed after initialization).
+  * **\`volatile\`**: Prevents compiler optimization, signaling that the value can change externally (e.g., hardware).
+  * **\`restrict\`**: Pointer-specific optimization (C99) declaring it the sole access point to its memory block.
+  * **\`_Atomic\`**: Ensures thread-safe, atomic operations on the variable (since C11).
+`,
+        "SigionOS Memory Address Map": `
+  
+						<sub>(this was written in AI, for more modern information.</sub>
+
+  # x86-64 OS Development Hardware Address Reference
+
+  > Note: Some entries are **I/O ports** rather than memory addresses. Modern x86-64 systems also use MMIO addresses discovered through PCI/ACPI.
+
+  ---
+
+  # PS/2 Keyboard Controller
+
+  | Address | Type | Description |
+  |---|---|---|
+  | \`0x60\` | I/O Port | Keyboard data port |
+  | \`0x64\` | I/O Port | Keyboard controller status/command |
+
+  ## Use case
+
+  Read keyboard scancodes.
+
+  ### C example
+
+  \`\`\`c
+  #include 
+						<stdint.h>
+
+  static inline uint8_t inb(uint16_t port)
+  {
+      uint8_t result;
+      __asm__ volatile ("inb %1, %0"
+          : "=a"(result)
+          : "Nd"(port));
+      return result;
+  }
+
+  uint8_t keyboard_read()
+  {
+      return inb(0x60);
+  }
+  \`\`\`
+
+  ---
+
+  # VGA Text Mode Buffer
+
+  | Address | Type | Description |
+  |---|---|---|
+  | \`0xB8000\` | Memory | VGA text framebuffer |
+
+  ## Use case
+
+  Print text directly to the screen without a graphics driver.
+
+  ### C example
+
+  \`\`\`c
+  #include 
+							<stdint.h>
+
+  #define VGA_MEMORY 0xB8000
+
+  void print_char(char c, uint8_t color)
+  {
+      volatile uint16_t *vga = (uint16_t *)VGA_MEMORY;
+
+      vga[0] = ((uint16_t)color << 8) | c;
+  }
+  \`\`\`
+
+  Usage:
+
+  \`\`\`c
+  print_char('A', 0x1F);
+  \`\`\`
+
+  ---
+
+  # Programmable Interrupt Controller (PIC)
+
+  | Address | Type | Description |
+  |---|---|---|
+  | \`0x20\` | I/O Port | Master PIC command |
+  | \`0x21\` | I/O Port | Master PIC data |
+  | \`0xA0\` | I/O Port | Slave PIC command |
+  | \`0xA1\` | I/O Port | Slave PIC data |
+
+  ## Use case
+
+  Configure hardware interrupts.
+
+  ### C example
+
+  \`\`\`c
+  static inline void outb(uint16_t port, uint8_t value)
+  {
+      __asm__ volatile ("outb %0, %1"
+          :
+          : "a"(value), "Nd"(port));
+  }
+
+  void pic_send_eoi()
+  {
+      outb(0x20, 0x20);
+  }
+  \`\`\`
+
+  Used after handling an IRQ:
+
+  \`\`\`
+  Hardware interrupt
+          |
+          v
+  ISR executes
+          |
+          v
+  Send EOI to PIC
+          |
+          v
+  Return from interrupt
+  \`\`\`
+
+  ---
+
+  # Programmable Interval Timer (PIT)
+
+  | Address | Type | Description |
+  |---|---|---|
+  | \`0x40\` | I/O Port | Timer channel 0 |
+  | \`0x43\` | I/O Port | Timer command |
+
+  ## Use case
+
+  Create a kernel timer for scheduling.
+
+  ### C example
+
+  \`\`\`c
+  void pit_init()
+  {
+      outb(0x43, 0x36);
+
+      uint16_t divisor = 1193182 / 100;
+
+      outb(0x40, divisor & 0xFF);
+      outb(0x40, divisor >> 8);
+  }
+  \`\`\`
+
+  Creates approximately:
+
+  \`\`\`
+  100 timer interrupts per second
+  \`\`\`
+
+  ---
+
+  # CMOS Real-Time Clock (RTC)
+
+  | Address | Type | Description |
+  |---|---|---|
+  | \`0x70\` | I/O Port | CMOS register selector |
+  | \`0x71\` | I/O Port | CMOS data |
+
+  ## Use case
+
+  Read the hardware clock.
+
+  ### C example
+
+  \`\`\`c
+  uint8_t rtc_read(uint8_t reg)
+  {
+      outb(0x70, reg);
+      return inb(0x71);
+  }
+
+  uint8_t get_hour()
+  {
+      return rtc_read(0x04);
+  }
+  \`\`\`
+
+  ---
+
+  # Serial Port (COM1)
+
+  | Address | Type | Description |
+  |---|---|---|
+  | \`0x3F8\` | I/O Port | COM1 data register |
+
+  ## Use case
+
+  Kernel debugging output.
+
+  ### C example
+
+  \`\`\`c
+  void serial_write(char c)
+  {
+      outb(0x3F8, c);
+  }
+
+  void serial_print(char *str)
+  {
+      while (*str)
+      {
+          serial_write(*str++);
+      }
+  }
+  \`\`\`
+
+  Usage:
+
+  \`\`\`c
+  serial_print("Kernel started\\n");
+  \`\`\`
+
+  ---
+
+  # BIOS Memory Regions
+
+  | Address | Description |
+  |---|---|
+  | \`0x00000\` | Interrupt Vector Table |
+  | \`0x00400\` | BIOS Data Area |
+  | \`0xA0000\` | VGA memory |
+  | \`0xF0000\` | System BIOS |
+  | \`0xFFFF0\` | Reset vector |
+
+  ## Use case
+
+  Bootloaders use these before switching to protected/long mode.
+
+  ---
+
+  # Quick OS Developer Reference
+
+  | Address | Purpose | Common Use |
+  |---|---|---|
+  | \`0x60\` | Keyboard data | Keyboard driver |
+  | \`0x64\` | Keyboard controller | Keyboard initialization |
+  | \`0x20\` | Master PIC | Interrupt handling |
+  | \`0x21\` | PIC data | IRQ masking |
+  | \`0x40\` | PIT timer | Scheduler ticks |
+  | \`0x43\` | PIT command | Timer setup |
+  | \`0x70\` | RTC selector | Clock access |
+  | \`0x71\` | RTC data | Clock reading |
+  | \`0x3F8\` | COM1 | Debug logging |
+  | \`0xB8000\` | VGA text buffer | Kernel console |
+
+  ---
+
+  # Modern x86-64 Hardware
+
+  Modern hardware usually uses PCI + MMIO instead of fixed addresses.
+
+  \`\`\`
+  UEFI
+   |
+   v
+  ACPI Tables
+   |
+   v
+  PCI Enumeration
+   |
+   v
+  BAR Registers
+   |
+   v
+  MMIO Address
+   |
+   v
+  Driver
+  \`\`\`
+
+  Examples:
+
+  | Device | Method |
+  |---|---|
+  | NVMe | PCI MMIO |
+  | GPU | PCI BAR MMIO |
+  | Ethernet | PCI MMIO |
+  | USB Controller | PCI MMIO |
+ `,
+        "Build an Operating System from scratch": `
+
+								<sub>(this was written in AI, for more modern information. General source at https://wiki.osdev.org/Bare_Bones#</sub>
+# Building a Small x86 Operating System Kernel
+
+A beginner-friendly guide to creating a tiny operating system kernel.
+
+This guide explains how to:
+
+- Create a bootable kernel
+- Use GRUB to load it
+- Start execution with assembly
+- Write kernel code in C
+- Display text directly on the screen
+- Understand what each part does
+
+The goal is not to build a complete OS immediately.
+
+The goal is to understand how the computer starts and how your code gains control.
+
+---
+
+# 1. How Booting Works
+
+When you press the power button:
+
+\`\`\`
+Computer
+   |
+   v
+Firmware (BIOS/UEFI)
+   |
+   v
+Bootloader (GRUB)
+   |
+   v
+Your Kernel
+   |
+   v
+Your Operating System
+\`\`\`
+
+The CPU starts in a very limited state.
+
+The bootloader prepares the machine and loads your kernel.
+
+Your kernel then becomes responsible for everything else.
+
+---
+
+# 2. Required Tools
+
+You need:
+
+- NASM (assembler)
+- GCC cross compiler
+- GRUB tools
+- QEMU emulator
+- Make
+
+Example packages on Linux:
+
+\`\`\`bash
+sudo apt install nasm grub-common grub-pc-bin qemu-system-x86
+\`\`\`
+
+You also need an x86 cross compiler:
+
+\`\`\`bash
+i686-elf-gcc
+\`\`\`
+
+A normal compiler:
+
+\`\`\`bash
+gcc program.c
+\`\`\`
+
+creates applications for an existing operating system.
+
+A kernel cannot use that because there is no operating system yet.
+
+---
+
+# 3. Create the Project
+
+Create a folder:
+
+\`\`\`bash
+mkdir myos
+cd myos
+\`\`\`
+
+Structure:
+
+\`\`\`
+myos/
+
+├── boot.asm
+├── kernel.c
+├── linker.ld
+├── grub.cfg
+└── Makefile
+\`\`\`
+
+---
+
+# 4. Creating the Boot Code
+
+File:
+
+\`\`\`
+boot.asm
+\`\`\`
+
+This is the first code executed by the CPU.
+
+\`\`\`asm
+; Tell the assembler this is 32-bit code
+BITS 32
+
+
+; Multiboot header
+; GRUB looks for this when loading the kernel
+
+section .multiboot
+
+align 4
+
+dd 0x1BADB002       ; Magic number
+dd 0x0              ; Flags
+dd -(0x1BADB002)    ; Checksum
+
+
+; Kernel code starts here
+
+section .text
+
+global _start
+
+
+_start:
+
+    ; Call our C function
+    call kernel_main
+
+
+; If kernel_main returns,
+; stop the CPU safely.
+
+hang:
+
+    cli       ; Disable interrupts
+    hlt       ; Halt CPU
+    jmp hang ; Stay here forever
+\`\`\`
+
+## Things you can edit
+
+Change:
+
+\`\`\`asm
+call kernel_main
+\`\`\`
+
+to:
+
+\`\`\`asm
+call another_function
+\`\`\`
+
+if you create another function in your kernel.
+
+---
+
+# 5. Writing Your First Kernel
+
+File:
+
+\`\`\`
+kernel.c
+\`\`\`
+
+\`\`\`c
+/*
+    Simple x86 kernel
+
+    This code writes directly
+    to VGA video memory.
+*/
+
+
+void kernel_main()
+{
+    /*
+        VGA text memory starts at:
+
+        0xB8000
+
+        Every character takes 2 bytes:
+
+        Byte 0 = character
+        Byte 1 = color
+    */
+
+
+    char *video = (char*)0xB8000;
+
+
+    /*
+        Change the text here.
+
+        Try replacing 'H' with another letter.
+    */
+
+    video[0] = 'H';
+
+
+    /*
+        Text color.
+
+        0x07 means:
+
+        - Light grey text
+        - Black background
+    */
+
+    video[1] = 0x07;
+
+
+
+    video[2] = 'i';
+    video[3] = 0x07;
+
+
+
+    /*
+        Add more characters:
+
+        video[4] = '!';
+        video[5] = 0x07;
+
+    */
+}
+\`\`\`
+
+After booting, the screen displays:
+
+\`\`\`
+Hi
+\`\`\`
+
+Try changing:
+
+\`\`\`c
+video[0] = 'H';
+\`\`\`
+
+to:
+
+\`\`\`c
+video[0] = 'A';
+\`\`\`
+
+The screen will display:
+
+\`\`\`
+Ai
+\`\`\`
+
+---
+
+# 6. Making a Better Text Function
+
+Instead of manually writing every character, create a function.
+
+Replace \`kernel.c\` with:
+
+\`\`\`c
+#define VGA_MEMORY 0xB8000
+
+
+/*
+    Prints text to the screen.
+
+    Parameters:
+
+    text:
+        The message to display
+
+    color:
+        The VGA color value
+*/
+
+
+void print(char *text, unsigned char color)
+{
+
+    char *video = (char*)VGA_MEMORY;
+
+
+    int position = 0;
+
+
+    while(text[position] != '\\0')
+    {
+
+        /*
+            Each character uses:
+
+            character byte
+            color byte
+        */
+
+
+        video[position * 2] =
+            text[position];
+
+
+        video[position * 2 + 1] =
+            color;
+
+
+        position++;
+
+    }
+
+}
+
+
+
+void kernel_main()
+{
+
+    print(
+        "Hello from my kernel!",
+        0x07
+    );
+
+
+}
+\`\`\`
+
+Output:
+
+\`\`\`
+Hello from my kernel!
+\`\`\`
+
+---
+
+# 7. Experiment With Colors
+
+VGA colors are stored as numbers.
+
+Example:
+
+\`\`\`c
+print("Red text", 0x04);
+\`\`\`
+
+Some colors:
+
+\`\`\`
+0x01 Blue
+0x02 Green
+0x03 Cyan
+0x04 Red
+0x05 Purple
+0x06 Brown
+0x07 White
+\`\`\`
+
+Try:
+
+\`\`\`c
+print(
+    "Green text",
+    0x02
+);
+\`\`\`
+
+---
+
+# 8. The Linker Script
+
+File:
+
+\`\`\`
+linker.ld
+\`\`\`
+
+The linker decides where the kernel is placed in memory.
+
+\`\`\`ld
+ENTRY(_start)
+
+
+SECTIONS
+{
+
+    /*
+        Load kernel at 1 MB.
+
+        Most old boot systems
+        expect kernels here.
+    */
+
+    . = 1M;
+
+
+
+    /*
+        Program code
+    */
+
+    .text :
+    {
+        *(.text)
+    }
+
+
+
+    /*
+        Read-only data
+    */
+
+    .rodata :
+    {
+        *(.rodata)
+    }
+
+
+
+    /*
+        Variables
+    */
+
+    .data :
+    {
+        *(.data)
+    }
+
+
+
+    /*
+        Empty variables
+    */
+
+    .bss :
+    {
+        *(.bss)
+    }
+
+}
+\`\`\`
+
+---
+
+# 9. Building
+
+Compile assembly:
+
+\`\`\`bash
+nasm -f elf32 boot.asm -o boot.o
+\`\`\`
+
+Compile C:
+
+\`\`\`bash
+i686-elf-gcc \
+-c kernel.c \
+-o kernel.o \
+-ffreestanding \
+-m32
+\`\`\`
+
+Link:
+
+\`\`\`bash
+i686-elf-gcc \
+-T linker.ld \
+-o kernel.bin \
+-ffreestanding \
+-nostdlib \
+boot.o kernel.o
+\`\`\`
+
+---
+
+# 10. Testing
+
+Run:
+
+\`\`\`bash
+qemu-system-i386 -kernel kernel.bin
+\`\`\`
+
+or create an ISO with GRUB.
+
+---
+
+# Next Steps
+
+After this works, add:
+
+- Keyboard input
+- Screen scrolling
+- Memory management
+- Interrupts
+- A filesystem
+- User programs
+
+You now have a real booting kernel.
+`,
+        "What is grub?": `
+
+								<sub>(this was written in AI, for more modern information.</sub>
+
+# Understanding GRUB (GRand Unified Bootloader)
+
+## 1. What is GRUB?
+GRUB is a **bootloader**. It is the very first software program that runs when you turn on your computer. Its only job is to find your operating system (like Linux or Windows) and load it into the computer's memory.
+
+---
+
+## 2. The Household Analogy
+To understand GRUB easily, think of your computer as a house:
+* **The House** = Your Operating System (Linux, Windows, etc.).
+* **The Doorman** = **GRUB**.
+
+The doorman does not build the house. He just stands at the entrance, unlocks the door, and lets you inside. Without the doorman, you cannot get into the house.
+
+---
+
+## 3. Main Responsibilities
+GRUB performs three main functions:
+
+* **System Booting:** It transfers control from your computer's hardware (BIOS/UEFI) to your operating system software.
+* **Dual-Boot Menu:** If you install both Windows and Linux on one computer, GRUB shows a menu at startup so you can choose which one to open.
+* **Emergency Rescue:** If your computer fails to start normally, GRUB lets you boot into a safe "Recovery Mode" to fix errors.
+
+---
+
+## 4. Key Takeaways
+* GRUB is **not** an operating system creator.
+* GRUB is **not** a Linux maker.
+* GRUB was created by the **GNU Project**, not by the creators of Linux.
+* GRUB disappears into the background the moment your desktop screen loads.
+`
+      };
+      let current = "Home";
+
+      function save() {
+        localStorage.setItem("wiki", JSON.stringify(wiki));
+      }
+
+      function showPages() {
+        let html = " < h3 > Pages < /h3>";
+        for (let p in wiki) {
+          html += `
+								<div>
+									<a onclick="openPage('${p}')">${p}</a>
+								</div>`;
+        }
+        document.getElementById("pages").innerHTML = html;
+      }
+
+      function parse(md) {
+        let html = marked.parse(md);
+        // Convert wiki links
+        html = html.replace(/\[\[(.*?)\]\]/g, function(a, b) {
+          return `
+								<a onclick="openPage('${b}')">${b}</a>`;
+        });
+        return html;
+      }
+
+      function openPage(name) {
+        if (!wiki[name]) {
+          alert("Page does not exist");
+          return;
+        }
+        current = name;
+        document.getElementById("main").innerHTML = `
+
+
+								<h2>${name}</h2>
+
+${parse(wiki[name])}
+
+`;
+      }
+      showPages();
+      openPage("Home");
+    </script>
+  </body>
+</html>
