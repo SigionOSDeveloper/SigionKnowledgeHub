@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Sigion Handbook</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
@@ -962,12 +963,11 @@ GRUB performs three main functions:
       }
 
       function showPages() {
-        let html = " < h3 > Pages < /h3>";
+        let html = "<h3>Pages</h3>";
         for (let p in wiki) {
-          html += `
-								<div>
-									<a onclick="openPage('${p}')">${p}</a>
-								</div>`;
+          html += `<div>
+            <a onclick="openPage('${p.replace(/'/g, "\\'")}')">${p}</a>
+          </div>`;
         }
         document.getElementById("pages").innerHTML = html;
       }
@@ -976,8 +976,7 @@ GRUB performs three main functions:
         let html = marked.parse(md);
         // Convert wiki links
         html = html.replace(/\[\[(.*?)\]\]/g, function(a, b) {
-          return `
-								<a onclick="openPage('${b}')">${b}</a>`;
+          return `<a onclick="openPage('${b.replace(/'/g, "\\'")}')">${b}</a>`;
         });
         return html;
       }
@@ -989,14 +988,11 @@ GRUB performs three main functions:
         }
         current = name;
         document.getElementById("main").innerHTML = `
-
-
-								<h2>${name}</h2>
-
-${parse(wiki[name])}
-
-`;
+          <h2>${name}</h2>
+          ${parse(wiki[name])}
+        `;
       }
+      
       showPages();
       openPage("Home");
     </script>
